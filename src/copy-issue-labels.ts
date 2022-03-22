@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
-export class IssueLabelCopier {
+export class PullRequestLabelManager {
   private readonly client: ReturnType<typeof github.getOctokit>;
   private readonly owner: string;
   private readonly repo: string;
@@ -22,7 +22,7 @@ export class IssueLabelCopier {
     }
   }
 
-  public async doPullRequest() {
+  public async copyLabelsFromReferencedIssues() {
     if (!this.pullNumber) {
       return;
     }
