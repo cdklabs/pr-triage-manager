@@ -1,17 +1,18 @@
 name: "Set PR Label"
 on:
   pull_request:
-    types: [opened, edited]
-  pull_request_target:
-    type: [opened, edited]
-  issue_comment:
-    types: [created, edited]
+    types:
+      - labeled
+      - unlabeled
+      - edited
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   pr-triage-manager:
     permissions:
       pull-requests: write
-    if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     steps:
       - uses: kaizen3031593/pr-triage-manager@main
