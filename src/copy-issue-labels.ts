@@ -110,10 +110,10 @@ export class PullRequestLabelManager {
 
   private findReferencedIssues(text: string): number[] {
     const hashRegex = /(\w+) #(\d+)/g;
-    const urlRegex = new RegExp(`(\w+) https://github.com/${this.owner}/${this.repo}/issues/(\d+)`, 'g');
+    const urlRegex = new RegExp(`(\\w+) https://github.com/${this.owner}/${this.repo}/issues/(\\d+)`, 'g');
 
     console.log(urlRegex);
-    const issuesClosedByHash =issuesClosed(hashRegex);
+    const issuesClosedByHash = issuesClosed(hashRegex);
     const issuesClosedByUrl = issuesClosed(urlRegex);
     console.log(text.matchAll(urlRegex));
     console.log(issuesClosedByUrl);
