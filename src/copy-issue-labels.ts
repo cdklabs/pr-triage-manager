@@ -1,19 +1,42 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
+export interface PullRequsetLabelManagerOptions {
+  /**
+   * @default - ['p0', 'p1', 'p2']
+   */
+  readonly priorityLabels?: string[];
+
+  /**
+   * @default - ['bug', 'feature-request']
+   */
+  readonly classificationLabels?: string[];
+
+  /**
+   * @default false
+   */
+  readonly dryRun?: boolean;
+}
+
 export class PullRequestLabelManager {
   private readonly client: ReturnType<typeof github.getOctokit>;
   private readonly owner: string;
   private readonly repo: string;
   private readonly pullNumber: number | undefined;
+  private readonly priorityLabels: string[];
+  private readonly classificationLabels: string[];
+  private readonly dryRun: boolean;
 
   constructor(
     token: string,
-    private readonly dryRun: boolean = false,
+    options: PullRequsetLabelManagerOptions,
   ) {
     this.client = github.getOctokit(token);
     this.repo = github.context.repo.repo;
     this.owner = github.context.repo.owner;
+    this.priorityLabels = options.priorityLabels ?? ['p0', 'p1', 'p2'];
+    this.classificationLabels = options.classificationLabels ?? ['bug', 'feature-request'];
+    this.dryRun = options.dryRun ?? false;
 
     if (github.context.payload.pull_request) {
       this.pullNumber = github.context.payload.pull_request.number;
@@ -45,8 +68,8 @@ export class PullRequestLabelManager {
     );
 
     const newPullLabels = new Set(pullLabels);
-    replaceLabels(newPullLabels, PRIO_LABELS, highestPrioLabel(issueLabels));
-    replaceLabels(newPullLabels, CLASS_LABELS, classification(issueLabels));
+    replaceLabels(newPullLabels, this.priorityLabels, this.highestPrioLabel(issueLabels));
+    replaceLabels(newPullLabels, this.classificationLabels, this.classification(issueLabels));
 
     const diff = setDiff(pullLabels, newPullLabels);
     console.log('Adding these labels: ', diff.adds);
@@ -93,17 +116,14 @@ export class PullRequestLabelManager {
     });
     return issue.data.labels.map((l) => typeof l === 'string' ? l : l.name ?? '');
   }
-}
 
-const PRIO_LABELS = ['p0', 'p1', 'p2'];
-const CLASS_LABELS = ['bug', 'feature-request'];
+  private highestPrioLabel(labels: Set<string>) {
+    return this.priorityLabels.find(l => labels.has(l));
+  }
 
-function highestPrioLabel(labels: Set<string>) {
-  return PRIO_LABELS.find(l => labels.has(l));
-}
-
-function classification(labels: Set<string>) {
-  return CLASS_LABELS.find(l => labels.has(l));
+  private classification(labels: Set<string>) {
+    return this.classificationLabels.find(l => labels.has(l));
+  }
 }
 
 function replaceLabels(labels: Set<string>, remove: string[], replace: string | undefined) {

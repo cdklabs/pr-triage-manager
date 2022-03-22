@@ -5,7 +5,19 @@ async function run() {
   core.setOutput('labeled', false.toString());
 
   const token = core.getInput('github-token');
-  const copier = new PullRequestLabelManager(token);
+  const priorityLabels: string[] | undefined = core
+    .getInput('priority-labels', { required: false })
+    .replace(/\[|\]/gi, '')
+    .split('|');
+  const classificationLabels: string[] | undefined = core
+    .getInput('classification-labels', { required: false })
+    .replace(/\[|\]/gi, '')
+    .split('|');
+
+  const copier = new PullRequestLabelManager(token, {
+    priorityLabels: priorityLabels,
+    classificationLabels: classificationLabels,
+  });
   await copier.copyLabelsFromReferencedIssues();
 }
 
