@@ -20,8 +20,6 @@ export class PullRequestLabelManager {
     } else {
       core.setFailed('Error retrieving PR');
     }
-
-    console.log(this.owner, this.repo, this.pullNumber);
   }
 
   public async copyLabelsFromReferencedIssues() {
@@ -52,6 +50,7 @@ export class PullRequestLabelManager {
 
     const diff = setDiff(pullLabels, newPullLabels);
     console.log('Adding these labels: ', diff.adds);
+    console.log('Removing these labels', diff.removes);
 
     if (isEmptyDiff(diff)) { return; }
 
