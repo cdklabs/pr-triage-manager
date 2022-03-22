@@ -69,7 +69,7 @@ export class PullRequestLabelManager {
           owner: this.owner,
           repo: this.repo,
           issue_number: this.pullNumber,
-          labels: diff.adds,
+          labels: diff.removes,
         }) : Promise.resolve(undefined),
       ]);
     }
