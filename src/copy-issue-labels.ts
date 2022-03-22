@@ -65,12 +65,12 @@ export class PullRequestLabelManager {
           issue_number: this.pullNumber,
           labels: diff.adds,
         }) : Promise.resolve(undefined),
-        diff.removes ? this.client.rest.issues.removeAllLabels({
+        diff.removes ? diff.removes.forEach((label) => this.client.rest.issues.removeLabel({
           owner: this.owner,
           repo: this.repo,
-          issue_number: this.pullNumber,
-          labels: diff.removes,
-        }) : Promise.resolve(undefined),
+          issue_number: this.pullNumber!,
+          name: label,
+        })) : Promise.resolve(undefined),
       ]);
     }
   }
