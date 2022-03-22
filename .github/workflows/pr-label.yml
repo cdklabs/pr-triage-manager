@@ -1,7 +1,7 @@
 name: "Set PR Label"
 on:
-  # pull_request:
-  #   types: [opened, edited]
+  pull_request:
+    types: [opened, edited]
   pull_request_target:
     type: [opened, edited]
 
