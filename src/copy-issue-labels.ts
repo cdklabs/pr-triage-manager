@@ -13,6 +13,11 @@ export interface PullRequsetLabelManagerOptions {
   readonly classificationLabels?: string[];
 
   /**
+   * @default - ['effort-large', 'effort-medium', 'effort-small']
+   */
+  readonly effortLabels?: string[];
+
+  /**
    * @default false
    */
   readonly dryRun?: boolean;
@@ -25,6 +30,7 @@ export class PullRequestLabelManager {
   private readonly pullNumber: number | undefined;
   private readonly priorityLabels: string[];
   private readonly classificationLabels: string[];
+  private readonly effortLabels: string[];
   private readonly dryRun: boolean;
 
   constructor(
@@ -36,6 +42,7 @@ export class PullRequestLabelManager {
     this.owner = github.context.repo.owner;
     this.priorityLabels = options.priorityLabels ?? ['p0', 'p1', 'p2'];
     this.classificationLabels = options.classificationLabels ?? ['bug', 'feature-request'];
+    this.effortLabels = options.effortLabels ?? ['effort-large', 'effort-medium', 'effort-small'];
     this.dryRun = options.dryRun ?? false;
 
     if (github.context.payload.pull_request) {
@@ -70,6 +77,7 @@ export class PullRequestLabelManager {
     const newPullLabels = new Set(pullLabels);
     replaceLabels(newPullLabels, this.priorityLabels, this.highestPrioLabel(issueLabels));
     replaceLabels(newPullLabels, this.classificationLabels, this.classification(issueLabels));
+    replaceLabels(newPullLabels, this.effortLabels, this.effort(issueLabels));
 
     const diff = setDiff(pullLabels, newPullLabels);
     console.log('Adding these labels: ', diff.adds);
@@ -123,6 +131,10 @@ export class PullRequestLabelManager {
 
   private classification(labels: Set<string>) {
     return this.classificationLabels.find(l => labels.has(l));
+  }
+
+  private effort(labels: Set<string>) {
+    return this.effortLabels.find(l => labels.has(l));
   }
 }
 
