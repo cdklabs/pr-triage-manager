@@ -1,0 +1,18 @@
+name: "PR Auto Labeling"
+description: "trigger an action based on PR description"
+inputs:
+  github-token:
+    description: "GitHub token"
+    required: true
+
+outputs:
+  title:
+    description: "Title of PR"
+  body:
+    description: "Body of PR"
+  labeled:
+    description: "\"true\" if labeled otherwise \"false\""
+
+runs:
+  using: "node12"
+  main: "lib/index.js"

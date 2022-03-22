@@ -1,0 +1,16 @@
+name: "Set PR Label"
+on:
+  pull_request:
+    types: [opened, edited]
+  pull_request_target:
+    type: [opened, edited]
+
+jobs:
+  pr-triage-manager:
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: kaizen3031593/github-backlog-groomer@master
+      with:
+        github-token: "${{ secrets.GITHUB_TOKEN }}"

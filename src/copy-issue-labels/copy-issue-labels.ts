@@ -1,66 +1,36 @@
-import { getOctokit } from '@actions/github';
-
-export interface CopyIssueLabelsOptions {
-  readonly owner: string;
-  readonly repo: string;
-  readonly repoToken?: string;
-  readonly dryRun?: boolean;
-}
+import * as core from '@actions/core';
+import * as github from '@actions/github';
 
 export class IssueLabelCopier {
-  public static create(options: CopyIssueLabelsOptions) {
-    if (!options.repoToken) {
-      throw new Error('Requiring a repo token');
-    }
-
-    const client = getOctokit(options.repoToken, {});
-
-    return new IssueLabelCopier(
-      options.owner,
-      options.repo,
-      client,
-      options.dryRun ?? false,
-    );
-  }
-
-  public static async doIt(options: CopyIssueLabelsOptions) {
-    const copyer = IssueLabelCopier.create(options);
-    return copyer.copyAll();
-  }
+  private readonly client: ReturnType<typeof github.getOctokit>;
+  private readonly owner: string;
+  private readonly repo: string;
+  private readonly pullNumber: number | undefined;
 
   constructor(
-    private readonly owner: string,
-    private readonly repo: string,
-    private readonly client: ReturnType<typeof getOctokit>,
-    private readonly dryRun: boolean,
-  ) {}
+    token: string,
+    private readonly dryRun: boolean = false,
+  ) {
+    this.client = github.getOctokit(token);
+    this.repo = github.context.repo.repo;
+    this.owner = github.context.repo.owner;
 
-  public async copyAll() {
-    let page = 1;
-    while (true) {
-      const pulls = await this.client.rest.pulls.list({
-        owner: this.owner,
-        repo: this.repo,
-        state: 'open',
-        page,
-      });
-      if (pulls.data.length === 0) {
-        break;
-      }
-
-      for (const pull of pulls.data) {
-        await this.doPullRequest(pull.number);
-      }
-
-      page += 1;
+    if (github.context.payload.pull_request) {
+      this.pullNumber = github.context.payload.pull_request.number;
+    } else {
+      core.setFailed('Error retrieving PR');
     }
   }
 
-  private async doPullRequest(pull_number: number) {
+  public async doPullRequest() {
+    if (!this.pullNumber) {
+      return;
+    }
+
     const pull = await this.client.rest.pulls.get({
       owner: this.owner,
       repo: this.repo,
-      pull_number,
+      pull_number: this.pullNumber!,
     });
     const references = this.findReferencedIssues(pull.data.body ?? '');
     const pullLabels = new Set(pull.data.labels.map((l) => l.name ?? ''));
@@ -79,19 +49,19 @@ export class IssueLabelCopier {
 
     const dryRun = this.dryRun ? '[--dry-run] ' : '';
 
-    console.log(`${dryRun}${pull_number} (references ${references}) ${vizDiff(diff)}`);
+    console.log(`${dryRun}${this.pullNumber} (references ${references}) ${vizDiff(diff)}`);
     if (!this.dryRun) {
       await Promise.all([
         diff.adds ? this.client.rest.issues.addLabels({
           owner: this.owner,
           repo: this.repo,
-          issue_number: pull_number,
+          issue_number: this.pullNumber,
           labels: diff.adds,
         }) : Promise.resolve(undefined),
         diff.removes ? this.client.rest.issues.removeAllLabels({
           owner: this.owner,
           repo: this.repo,
-          issue_number: pull_number,
+          issue_number: this.pullNumber,
           labels: diff.adds,
         }) : Promise.resolve(undefined),
       ]);
