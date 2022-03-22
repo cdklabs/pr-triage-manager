@@ -1,6 +1,18 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
+const GITHUB_CLOSE_ISSUE_KEYWORDS = [
+  'close',
+  'closes',
+  'closed',
+  'fix',
+  'fixes',
+  'fixed',
+  'resolve',
+  'resolves',
+  'resolved',
+];
+
 export interface PullRequsetLabelManagerOptions {
   /**
    * @default - ['p0', 'p1', 'p2']
@@ -96,13 +108,19 @@ export class PullRequestLabelManager {
   }
 
   private findReferencedIssues(text: string): number[] {
-    const hashRegex = /#(\d+)/g;
-    const urlRegex = new RegExp(`https://github.com/${this.owner}/${this.repo}/issues/(\d+)`, 'g');
+    const hashRegex = /(\w+) #(\d+)/g;
+    const urlRegex = new RegExp(`(\w+) https://github.com/${this.owner}/${this.repo}/issues/(\d+)`, 'g');
 
-    const issuesReffedByHash = Array.from(text.matchAll(hashRegex)).map((m) => m[1]);
-    const issuesReffedByUrl = Array.from(text.matchAll(urlRegex)).map((m) => m[1]);
+    const issuesClosedByHash =issuesClosed(hashRegex);
+    const issuesClosedByUrl = issuesClosed(urlRegex);
 
-    return [...issuesReffedByHash, ...issuesReffedByUrl].map((x) => parseInt(x, 10));
+    return [...issuesClosedByHash, ...issuesClosedByUrl].map((x) => parseInt(x, 10));
+
+    function issuesClosed(regex: RegExp): string[] {
+      return Array.from(text.matchAll(regex))
+        .filter((m) => GITHUB_CLOSE_ISSUE_KEYWORDS.includes(m[1]))
+        .map((m) => m[2]);
+    }
   }
 
   private async issueLabels(issue_number: number): Promise<string[]> {
