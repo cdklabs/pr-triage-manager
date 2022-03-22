@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
+// see: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
 const GITHUB_CLOSE_ISSUE_KEYWORDS = [
   'close',
   'closes',
@@ -80,9 +81,9 @@ export class PullRequestLabelManager {
     );
 
     const newPullLabels = new Set(pullLabels);
-    replaceLabels(newPullLabels, this.priorityLabels, this.highestPrioLabel(issueLabels));
+    replaceLabels(newPullLabels, this.priorityLabels, this.highestPriorityLabel(issueLabels));
     replaceLabels(newPullLabels, this.classificationLabels, this.classification(issueLabels));
-    replaceLabels(newPullLabels, this.effortLabels, this.effort(issueLabels));
+    replaceLabels(newPullLabels, this.effortLabels, this.largestEffort(issueLabels));
 
     const diff = setDiff(pullLabels, newPullLabels);
     console.log('Adding these labels: ', diff.adds);
@@ -118,7 +119,7 @@ export class PullRequestLabelManager {
 
     function issuesClosed(regex: RegExp): string[] {
       return Array.from(text.matchAll(regex))
-        .filter((m) => GITHUB_CLOSE_ISSUE_KEYWORDS.includes(m[1]))
+        .filter((m) => GITHUB_CLOSE_ISSUE_KEYWORDS.includes(m[1].toLowerCase()))
         .map((m) => m[2]);
     }
   }
@@ -132,15 +133,19 @@ export class PullRequestLabelManager {
     return issue.data.labels.map((l) => typeof l === 'string' ? l : l.name ?? '');
   }
 
-  private highestPrioLabel(labels: Set<string>) {
-    return this.priorityLabels.find(l => labels.has(l));
+  /**
+   * We mandate priority labels even if there are no priorities found in linked issues.
+   * In the absence of a known priority, we will label the PR with the lowest priority available.
+   */
+  private highestPriorityLabel(labels: Set<string>): string {
+    return this.priorityLabels.find(l => labels.has(l)) ?? this.priorityLabels[this.priorityLabels.length-1];
   }
 
   private classification(labels: Set<string>) {
     return this.classificationLabels.find(l => labels.has(l));
   }
 
-  private effort(labels: Set<string>) {
+  private largestEffort(labels: Set<string>) {
     return this.effortLabels.find(l => labels.has(l));
   }
 }

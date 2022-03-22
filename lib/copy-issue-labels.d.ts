@@ -24,7 +24,11 @@ export declare class PullRequestLabelManager {
     copyLabelsFromReferencedIssues(): Promise<void>;
     private findReferencedIssues;
     private issueLabels;
-    private highestPrioLabel;
+    /**
+     * We mandate priority labels even if there are no priorities found in linked issues.
+     * In the absence of a known priority, we will label the PR with the lowest priority available.
+     */
+    private highestPriorityLabel;
     private classification;
-    private effort;
+    private largestEffort;
 }
