@@ -12,5 +12,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: kaizen3031593/pr-triage-manager@main
-      with:
-        github-token: "${{ secrets.GITHUB_TOKEN }}"
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
