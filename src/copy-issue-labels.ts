@@ -16,11 +16,6 @@ export interface PullRequsetLabelManagerOptions {
    * @default - ['effort-large', 'effort-medium', 'effort-small']
    */
   readonly effortLabels?: string[];
-
-  /**
-   * @default false
-   */
-  readonly dryRun?: boolean;
 }
 
 export class PullRequestLabelManager {
@@ -31,7 +26,6 @@ export class PullRequestLabelManager {
   private readonly priorityLabels: string[];
   private readonly classificationLabels: string[];
   private readonly effortLabels: string[];
-  private readonly dryRun: boolean;
 
   constructor(
     token: string,
@@ -43,7 +37,6 @@ export class PullRequestLabelManager {
     this.priorityLabels = options.priorityLabels ?? ['p0', 'p1', 'p2'];
     this.classificationLabels = options.classificationLabels ?? ['bug', 'feature-request'];
     this.effortLabels = options.effortLabels ?? ['effort-large', 'effort-medium', 'effort-small'];
-    this.dryRun = options.dryRun ?? false;
 
     if (github.context.payload.pull_request) {
       this.pullNumber = github.context.payload.pull_request.number;
@@ -85,25 +78,21 @@ export class PullRequestLabelManager {
 
     if (isEmptyDiff(diff)) { return; }
 
-    const dryRun = this.dryRun ? '[--dry-run] ' : '';
-
-    console.log(`${dryRun}${this.pullNumber} (references ${references}) ${vizDiff(diff)}`);
-    if (!this.dryRun) {
-      await Promise.all([
-        diff.adds ? this.client.rest.issues.addLabels({
-          owner: this.owner,
-          repo: this.repo,
-          issue_number: this.pullNumber,
-          labels: diff.adds,
-        }) : Promise.resolve(undefined),
-        diff.removes ? diff.removes.forEach((label) => this.client.rest.issues.removeLabel({
-          owner: this.owner,
-          repo: this.repo,
-          issue_number: this.pullNumber!,
-          name: label,
-        })) : Promise.resolve(undefined),
-      ]);
-    }
+    console.log(`${this.pullNumber} (references ${references}) ${vizDiff(diff)}`);
+    await Promise.all([
+      diff.adds ? this.client.rest.issues.addLabels({
+        owner: this.owner,
+        repo: this.repo,
+        issue_number: this.pullNumber,
+        labels: diff.adds,
+      }) : Promise.resolve(undefined),
+      diff.removes ? diff.removes.forEach((label) => this.client.rest.issues.removeLabel({
+        owner: this.owner,
+        repo: this.repo,
+        issue_number: this.pullNumber!,
+        name: label,
+      })) : Promise.resolve(undefined),
+    ]);
   }
 
   private findReferencedIssues(text: string): number[] {

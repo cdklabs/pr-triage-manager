@@ -11,10 +11,6 @@ export interface PullRequsetLabelManagerOptions {
      * @default - ['effort-large', 'effort-medium', 'effort-small']
      */
     readonly effortLabels?: string[];
-    /**
-     * @default false
-     */
-    readonly dryRun?: boolean;
 }
 export declare class PullRequestLabelManager {
     private readonly client;
@@ -24,7 +20,6 @@ export declare class PullRequestLabelManager {
     private readonly priorityLabels;
     private readonly classificationLabels;
     private readonly effortLabels;
-    private readonly dryRun;
     constructor(token: string, options: PullRequsetLabelManagerOptions);
     copyLabelsFromReferencedIssues(): Promise<void>;
     private findReferencedIssues;
