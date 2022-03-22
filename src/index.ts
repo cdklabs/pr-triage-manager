@@ -14,6 +14,8 @@ async function run() {
     .replace(/\[|\]/gi, '')
     .split('|');
 
+  console.log('priority labels from inputs', priorityLabels);
+  console.log('classification labesl from inputs', classificationLabels);
   const copier = new PullRequestLabelManager(token, {
     priorityLabels: priorityLabels,
     classificationLabels: classificationLabels,
