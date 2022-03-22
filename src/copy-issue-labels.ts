@@ -25,7 +25,7 @@ export class PullRequestLabelManager {
   }
 
   public async copyLabelsFromReferencedIssues() {
-    console.log('calling copylabels with: ', this.pullNumber);
+    console.log('Adding labels to PR number ', this.pullNumber);
     if (!this.pullNumber) {
       return;
     }
@@ -33,9 +33,12 @@ export class PullRequestLabelManager {
     const pull = await this.client.rest.pulls.get({
       owner: this.owner,
       repo: this.repo,
-      pull_number: this.pullNumber!,
+      pull_number: this.pullNumber,
     });
+
     const references = this.findReferencedIssues(pull.data.body ?? '');
+    console.log('Found these referenced issues: ', references);
+
     const pullLabels = new Set(pull.data.labels.map((l) => l.name ?? ''));
     const issueLabels = new Set(
       (
@@ -48,6 +51,8 @@ export class PullRequestLabelManager {
     replaceLabels(newPullLabels, CLASS_LABELS, classification(issueLabels));
 
     const diff = setDiff(pullLabels, newPullLabels);
+    console.log('Adding these labels: ', diff.adds);
+
     if (isEmptyDiff(diff)) { return; }
 
     const dryRun = this.dryRun ? '[--dry-run] ' : '';
