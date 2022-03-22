@@ -17,4 +17,5 @@ const project = new typescript.TypeScriptProject({
   },
 });
 
+project.addGitIgnore('!/lib');
 project.synth();

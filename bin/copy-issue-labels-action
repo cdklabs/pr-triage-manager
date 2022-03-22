@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('../lib/copy-issue-labels/action');
+require('../lib/index.js');
