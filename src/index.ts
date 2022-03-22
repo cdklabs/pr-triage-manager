@@ -1,12 +1,12 @@
 import * as core from '@actions/core';
-import { IssueLabelCopier } from './copy-issue-labels';
+import { PullRequestLabelManager } from './copy-issue-labels';
 
 async function run() {
   core.setOutput('labeled', false.toString());
 
   const token = core.getInput('github-token');
-  const copier = new IssueLabelCopier(token);
-  await copier.doPullRequest();
+  const copier = new PullRequestLabelManager(token);
+  await copier.copyLabelsFromReferencedIssues();
 }
 
 run().catch(error => {
