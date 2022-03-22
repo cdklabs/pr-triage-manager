@@ -20,9 +20,12 @@ export class PullRequestLabelManager {
     } else {
       core.setFailed('Error retrieving PR');
     }
+
+    console.log(this.owner, this.repo, this.pullNumber);
   }
 
   public async copyLabelsFromReferencedIssues() {
+    console.log('calling copylabels with: ', this.pullNumber);
     if (!this.pullNumber) {
       return;
     }
