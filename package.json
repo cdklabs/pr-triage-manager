@@ -1,9 +1,9 @@
 {
-  "name": "github-backlog-groomer",
-  "description": "Helpers for keeping the backlog of GitHub work manageable",
+  "name": "pr-triage-manager",
+  "description": "Triage PRs as they come in based on linked issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rix0rrr/github-backlog-groomer"
+    "url": "https://github.com/kaizen3031593/pr-triage-manager"
   },
   "bin": {
     "copy-issue-labels-action": "bin/copy-issue-labels-action",
@@ -32,7 +32,7 @@
     "projen": "npx projen"
   },
   "author": {
-    "name": "Rico Huijbers",
+    "name": "Kaizen Conroy",
     "organization": false
   },
   "devDependencies": {

@@ -2,16 +2,10 @@ const { typescript } = require('projen');
 
 const project = new typescript.TypeScriptProject({
   defaultReleaseBranch: 'main',
-  name: 'github-backlog-groomer',
-  description: 'Helpers for keeping the backlog of GitHub work manageable',
-  repository: 'https://github.com/rix0rrr/github-backlog-groomer',
-  authorName: 'Rico Huijbers',
-
-  bin: {
-    'copy-issue-labels-action': 'bin/copy-issue-labels-action',
-    'copy-issue-labels-cli': 'bin/copy-issue-labels-cli',
-  },
-
+  name: 'pr-triage-manager',
+  description: 'Triage PRs as they come in based on linked issues',
+  repository: 'https://github.com/kaizen3031593/pr-triage-manager',
+  authorName: 'Kaizen Conroy',
   deps: ['@actions/core', '@actions/github', 'yargs'],
   devDeps: [],
   releaseToNpm: true,
@@ -22,4 +16,5 @@ const project = new typescript.TypeScriptProject({
     },
   },
 });
+
 project.synth();
