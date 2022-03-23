@@ -19,7 +19,7 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-      - uses: aws-github-ops/pr-triage-manager@main
+      - uses: kaizen3031593/pr-triage-manager@main
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 ```
@@ -39,7 +39,7 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-      - uses: aws-github-ops/pr-triage-manager@main
+      - uses: kaizen3013593/pr-triage-manager@main
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           effort-labels: "[xs|s|m|l|xl]"
