@@ -17,6 +17,7 @@ async function run() {
     effortLabels: renderListInput(rawEffortLabels),
   });
   await copier.copyLabelsFromReferencedIssues();
+  core.setOutput('labeled', true.toString());
 }
 
 /**

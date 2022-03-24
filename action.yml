@@ -12,10 +12,6 @@ inputs:
     required: false
 
 outputs:
-  title:
-    description: "Title of PR"
-  body:
-    description: "Body of PR"
   labeled:
     description: "\"true\" if labeled otherwise \"false\""
 
