@@ -5,9 +5,6 @@
     "type": "git",
     "url": "https://github.com/kaizen3031593/pr-triage-manager"
   },
-  "bin": {
-    "copy-issue-labels-action": "bin/copy-issue-labels-action"
-  },
   "scripts": {
     "build": "npx projen build",
     "bump": "npx projen bump",

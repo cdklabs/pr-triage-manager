@@ -49,7 +49,7 @@ export class PullRequestLabelManager {
     this.owner = github.context.repo.owner;
     this.priorityLabels = options.priorityLabels ?? ['p0', 'p1', 'p2'];
     this.classificationLabels = options.classificationLabels ?? ['bug', 'feature-request'];
-    this.effortLabels = options.effortLabels ?? ['effort-large', 'effort-medium', 'effort-small'];
+    this.effortLabels = options.effortLabels ?? ['effort/large', 'effort/medium', 'effort/small'];
 
     if (github.context.payload.pull_request) {
       this.pullNumber = github.context.payload.pull_request.number;
