@@ -11,12 +11,16 @@ async function run() {
 
   console.log('priority labels from inputs', rawPriorityLabels);
   console.log('classification labesl from inputs', rawClassificationLables);
+  console.log('pull numbers', toNumber(renderListInput(core.getInput('on-pulls')) ?? []));
+
   const copier = new PullRequestLabelManager(token, {
     priorityLabels: renderListInput(rawPriorityLabels),
     classificationLabels: renderListInput(rawClassificationLables),
     effortLabels: renderListInput(rawEffortLabels),
+    pullNumbers: toNumber(renderListInput(core.getInput('on-pulls')) ?? []),
   });
-  await copier.copyLabelsFromReferencedIssues();
+
+  await copier.doPulls();
   core.setOutput('labeled', true.toString());
 }
 
@@ -26,7 +30,12 @@ async function run() {
  * input is not defined, so treating the empty string like undefined.
  */
 function renderListInput(rawInput: string): string[] | undefined {
+  rawInput.replace(',', '|');
   return rawInput === '' ? undefined : rawInput.replace(/\[|\]/gi, '').split('|');
+}
+
+function toNumber(list: string[]): number[] {
+  return list.map((i) => Number(i));
 }
 
 run().catch(error => {

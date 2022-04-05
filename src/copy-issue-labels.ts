@@ -1,4 +1,3 @@
-import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 // see: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword
@@ -29,13 +28,18 @@ export interface PullRequsetLabelManagerOptions {
    * @default - ['effort-large', 'effort-medium', 'effort-small']
    */
   readonly effortLabels?: string[];
+
+  /**
+   * @default - no provided pull numbers, so will get number from context
+   */
+  readonly pullNumbers?: number[];
 }
 
 export class PullRequestLabelManager {
   private readonly client: ReturnType<typeof github.getOctokit>;
   private readonly owner: string;
   private readonly repo: string;
-  private readonly pullNumber: number | undefined;
+  private readonly pullNumbers: number[];
   private readonly priorityLabels: string[];
   private readonly classificationLabels: string[];
   private readonly effortLabels: string[];
@@ -51,23 +55,31 @@ export class PullRequestLabelManager {
     this.classificationLabels = options.classificationLabels ?? ['bug', 'feature-request'];
     this.effortLabels = options.effortLabels ?? ['effort/large', 'effort/medium', 'effort/small'];
 
+    // If pull numbers are supplied, we will try to copy labels to each
+    // If pull numbers are not supplied, we will find the pull request that triggered the action
+    // and copy labels on that pull request.
+    this.pullNumbers = (options.pullNumbers && options.pullNumbers.length > 0) ?
+      options.pullNumbers :
+      [];
+
     if (github.context.payload.pull_request) {
-      this.pullNumber = github.context.payload.pull_request.number;
-    } else {
-      core.setFailed('Error retrieving PR');
+      this.pullNumbers.push(github.context.payload.pull_request.number);
     }
   }
 
-  public async copyLabelsFromReferencedIssues() {
-    console.log('Adding labels to PR number ', this.pullNumber);
-    if (!this.pullNumber) {
-      return;
+  public async doPulls() {
+    for (const pull of this.pullNumbers) {
+      await this.copyLabelsFromReferencedIssues(pull);
     }
+  }
+
+  public async copyLabelsFromReferencedIssues(pullNumber: number) {
+    console.log('Adding labels to PR number ', pullNumber);
 
     const pull = await this.client.rest.pulls.get({
       owner: this.owner,
       repo: this.repo,
-      pull_number: this.pullNumber,
+      pull_number: pullNumber,
     });
 
     const references = this.findReferencedIssues(pull.data.body ?? '');
@@ -91,18 +103,18 @@ export class PullRequestLabelManager {
 
     if (isEmptyDiff(diff)) { return; }
 
-    console.log(`${this.pullNumber} (references ${references}) ${vizDiff(diff)}`);
+    console.log(`${pullNumber} (references ${references}) ${vizDiff(diff)}`);
     await Promise.all([
       diff.adds ? this.client.rest.issues.addLabels({
         owner: this.owner,
         repo: this.repo,
-        issue_number: this.pullNumber,
+        issue_number: pullNumber,
         labels: diff.adds,
       }) : Promise.resolve(undefined),
       diff.removes ? diff.removes.forEach((label) => this.client.rest.issues.removeLabel({
         owner: this.owner,
         repo: this.repo,
-        issue_number: this.pullNumber!,
+        issue_number: pullNumber!,
         name: label,
       })) : Promise.resolve(undefined),
     ]);

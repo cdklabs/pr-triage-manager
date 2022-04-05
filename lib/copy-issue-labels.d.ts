@@ -11,17 +11,22 @@ export interface PullRequsetLabelManagerOptions {
      * @default - ['effort-large', 'effort-medium', 'effort-small']
      */
     readonly effortLabels?: string[];
+    /**
+     * @default - no provided pull numbers, so will get number from context
+     */
+    readonly pullNumbers?: number[];
 }
 export declare class PullRequestLabelManager {
     private readonly client;
     private readonly owner;
     private readonly repo;
-    private readonly pullNumber;
+    private readonly pullNumbers;
     private readonly priorityLabels;
     private readonly classificationLabels;
     private readonly effortLabels;
     constructor(token: string, options: PullRequsetLabelManagerOptions);
-    copyLabelsFromReferencedIssues(): Promise<void>;
+    doPulls(): Promise<void>;
+    copyLabelsFromReferencedIssues(pullNumber: number): Promise<void>;
     private findReferencedIssues;
     private issueLabels;
     /**
