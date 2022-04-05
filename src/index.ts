@@ -11,6 +11,7 @@ async function run() {
 
   console.log('priority labels from inputs', rawPriorityLabels);
   console.log('classification labesl from inputs', rawClassificationLables);
+  console.log(core.getInput('on-pulls'), renderListInput(core.getInput('on-pulls')));
   console.log('pull numbers', toNumber(renderListInput(core.getInput('on-pulls')) ?? []));
 
   const copier = new PullRequestLabelManager(token, {
