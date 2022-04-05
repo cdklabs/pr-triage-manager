@@ -27,12 +27,11 @@ async function run() {
 
 /**
  * Renders a TypeScript list based on what we expect the list to look like in yaml.
- * We expect to see something like "[item1|item2]". GitHub will return '' if the
+ * We expect to see something like "[item1,item2]". GitHub will return '' if the
  * input is not defined, so treating the empty string like undefined.
  */
 function renderListInput(rawInput: string): string[] | undefined {
-  rawInput.replace(',', '|');
-  return rawInput === '' ? undefined : rawInput.replace(/\[|\]/gi, '').split('|');
+  return rawInput === '' ? undefined : rawInput.replace(/\[|\]/gi, '').split(',');
 }
 
 function toNumber(list: string[]): number[] {

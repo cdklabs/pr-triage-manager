@@ -42,8 +42,8 @@ jobs:
       - uses: kaizen3013593/pr-triage-manager@main
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
-          effort-labels: "[xs|s|m|l|xl]"
-          priority: "[important|nice-to-have]"
+          effort-labels: "[xs,s,m,l,xl]"
+          priority: "[important,nice-to-have]"
 ```
 
 ## Result
