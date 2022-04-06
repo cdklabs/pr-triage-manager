@@ -31,7 +31,7 @@ async function run() {
  * input is not defined, so treating the empty string like undefined.
  */
 function renderListInput(rawInput: string): string[] | undefined {
-  return rawInput === '' ? undefined : rawInput.replace(/\[|\]/gi, '').split(',');
+  return (rawInput === '' || rawInput === '[]') ? undefined : rawInput.replace(/\[|\]/gi, '').split(',');
 }
 
 function toNumber(list: string[]): number[] {
