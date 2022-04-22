@@ -93,7 +93,7 @@ export class PullRequestLabelManager {
     );
 
     const newPullLabels = new Set(pullLabels);
-    replaceLabels(newPullLabels, this.priorityLabels, this.highestPriorityLabel(issueLabels));
+    replaceLabels(newPullLabels, this.priorityLabels, this.highestPriorityLabel(issueLabels, pullLabels));
     replaceLabels(newPullLabels, this.classificationLabels, this.classification(issueLabels));
     replaceLabels(newPullLabels, this.effortLabels, this.largestEffort(issueLabels));
 
@@ -147,10 +147,13 @@ export class PullRequestLabelManager {
 
   /**
    * We mandate priority labels even if there are no priorities found in linked issues.
-   * In the absence of a known priority, we will label the PR with the lowest priority available.
+   * In the absence of a known priority, we will maintain priority that the PR was originally labeled.
+   * In the absense of that, we will label the PR with the lowest priority available.
    */
-  private highestPriorityLabel(labels: Set<string>): string {
-    return this.priorityLabels.find(l => labels.has(l)) ?? this.priorityLabels[this.priorityLabels.length-1];
+  private highestPriorityLabel(issueLabels: Set<string>, pullLabels: Set<string>): string {
+    return this.priorityLabels.find(l => issueLabels.has(l)) ??
+      this.priorityLabels.find(l => pullLabels.has(l)) ??
+      this.priorityLabels[this.priorityLabels.length-1];
   }
 
   private classification(labels: Set<string>) {
