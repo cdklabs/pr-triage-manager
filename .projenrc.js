@@ -8,7 +8,6 @@ const project = new typescript.TypeScriptProject({
   authorName: 'Kaizen Conroy',
   deps: ['@actions/core', '@actions/github'],
   devDeps: ['@vercel/ncc'],
-  releaseToNpm: true,
   tsconfig: {
     compilerOptions: {
       target: 'ES2020',
