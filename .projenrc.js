@@ -2,6 +2,7 @@ const { typescript } = require('projen');
 
 const project = new typescript.TypeScriptProject({
   defaultReleaseBranch: 'main',
+  release: false,
   name: 'pr-triage-manager',
   description: 'Triage PRs as they come in based on linked issues',
   repository: 'https://github.com/kaizen3031593/pr-triage-manager',
