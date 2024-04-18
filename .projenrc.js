@@ -8,6 +8,11 @@ const project = new typescript.TypeScriptProject({
   repository: 'https://github.com/kaizen3031593/pr-triage-manager',
   authorName: 'Kaizen Conroy',
   deps: ['@actions/core', '@actions/github'],
+  autoApproveUpgrades: true,
+  autoApproveOptions: {
+    allowedUsernames: ['cdklabs-automation'],
+    secret: 'GITHUB_TOKEN',
+  },
   devDeps: ['@vercel/ncc'],
   tsconfig: {
     compilerOptions: {
