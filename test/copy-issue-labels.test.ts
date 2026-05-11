@@ -145,4 +145,22 @@ describe('PullRequestLabelManager - issue #610 fix', () => {
       labels: expect.arrayContaining(['p0']),
     }));
   });
+
+  test('valid issue with no labels preserves PR priority (not a false reset)', async () => {
+    const { addLabels, removeLabel } = createMockOctokit({
+      pullBody: 'closes #200',
+      pullLabels: ['p1'],
+      issueLabelsMap: { 200: [] },
+    });
+
+    const manager = new PullRequestLabelManager('fake-token', {
+      pullNumbers: [1],
+    });
+
+    await manager.copyLabelsFromReferencedIssues(1);
+
+    // Issue exists but has no labels — should preserve PR's p1, NOT reset to p2
+    expect(addLabels).not.toHaveBeenCalled();
+    expect(removeLabel).not.toHaveBeenCalled();
+  });
 });

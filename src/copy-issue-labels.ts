@@ -87,8 +87,8 @@ export class PullRequestLabelManager {
 
     const pullLabels = new Set(pull.data.labels.map((l) => l.name ?? ''));
     const issueLabelResults = await Promise.all(references.map((issue) => this.issueLabels(issue)));
-    const hasValidIssues = references.length === 0 || issueLabelResults.some((labels) => labels.length > 0);
-    const issueLabels = new Set(issueLabelResults.flat());
+    const hasValidIssues = references.length === 0 || issueLabelResults.some((result) => result !== null);
+    const issueLabels = new Set(issueLabelResults.filter((r): r is string[] => r !== null).flat());
 
     const newPullLabels = new Set(pullLabels);
     replaceLabels(newPullLabels, this.priorityLabels, this.highestPriorityLabel(issueLabels, pullLabels, hasValidIssues));
@@ -134,7 +134,7 @@ export class PullRequestLabelManager {
     }
   }
 
-  private async issueLabels(issue_number: number): Promise<string[]> {
+  private async issueLabels(issue_number: number): Promise<string[] | null> {
     try {
       const issue = await this.client.rest.issues.get({
         owner: this.owner,
@@ -143,8 +143,11 @@ export class PullRequestLabelManager {
       });
       return issue.data.labels.map((l) => typeof l === 'string' ? l : l.name ?? '');
     } catch (error: any) {
-      console.log(`Issue #${issue_number} not found (status: ${error.status}), skipping`);
-      return [];
+      if (error.status === 404) {
+        console.log(`Issue #${issue_number} not found, skipping`);
+        return null;
+      }
+      throw error;
     }
   }
 
