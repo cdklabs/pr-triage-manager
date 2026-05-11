@@ -95,7 +95,7 @@ describe('PullRequestLabelManager - issue #610 fix', () => {
   });
 
   test('PR keeps priority from valid linked issue', async () => {
-    createMockOctokit({
+    const { addLabels, removeLabel } = createMockOctokit({
       pullBody: 'closes #100',
       pullLabels: ['p2'],
       issueLabelsMap: { 100: ['p1', 'bug'] },
@@ -106,7 +106,12 @@ describe('PullRequestLabelManager - issue #610 fix', () => {
     });
 
     await manager.copyLabelsFromReferencedIssues(1);
+
     // Should upgrade to p1 from the valid issue
+    expect(addLabels).toHaveBeenCalledWith(expect.objectContaining({
+      labels: expect.arrayContaining(['p1']),
+    }));
+    expect(removeLabel).toHaveBeenCalledWith(expect.objectContaining({ name: 'p2' }));
   });
 
   test('PR with no references preserves existing priority', async () => {
