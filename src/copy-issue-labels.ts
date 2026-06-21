@@ -86,14 +86,12 @@ export class PullRequestLabelManager {
     console.log('Found these referenced issues: ', references);
 
     const pullLabels = new Set(pull.data.labels.map((l) => l.name ?? ''));
-    const issueLabels = new Set(
-      (
-        await Promise.all(references.map((issue) => this.issueLabels(issue)))
-      ).flat(),
-    );
+    const issueLabelResults = await Promise.all(references.map((issue) => this.issueLabels(issue)));
+    const hasValidIssues = references.length === 0 || issueLabelResults.some((result) => result !== null);
+    const issueLabels = new Set(issueLabelResults.filter((r): r is string[] => r !== null).flat());
 
     const newPullLabels = new Set(pullLabels);
-    replaceLabels(newPullLabels, this.priorityLabels, this.highestPriorityLabel(issueLabels, pullLabels));
+    replaceLabels(newPullLabels, this.priorityLabels, this.highestPriorityLabel(issueLabels, pullLabels, hasValidIssues));
     replaceLabels(newPullLabels, this.classificationLabels, this.classification(issueLabels));
     replaceLabels(newPullLabels, this.effortLabels, this.largestEffort(issueLabels));
 
@@ -136,23 +134,34 @@ export class PullRequestLabelManager {
     }
   }
 
-  private async issueLabels(issue_number: number): Promise<string[]> {
-    const issue = await this.client.rest.issues.get({
-      owner: this.owner,
-      repo: this.repo,
-      issue_number,
-    });
-    return issue.data.labels.map((l) => typeof l === 'string' ? l : l.name ?? '');
+  private async issueLabels(issue_number: number): Promise<string[] | null> {
+    try {
+      const issue = await this.client.rest.issues.get({
+        owner: this.owner,
+        repo: this.repo,
+        issue_number,
+      });
+      return issue.data.labels.map((l) => typeof l === 'string' ? l : l.name ?? '');
+    } catch (error: any) {
+      if (error.status === 404) {
+        console.log(`Issue #${issue_number} not found, skipping`);
+        return null;
+      }
+      throw error;
+    }
   }
 
   /**
    * We mandate priority labels even if there are no priorities found in linked issues.
    * In the absence of a known priority, we will maintain priority that the PR was originally labeled.
    * In the absense of that, we will label the PR with the lowest priority available.
+   *
+   * If references exist but none resolved to valid issues, we reset to lowest priority
+   * to prevent gaming the priority system with non-existing issue references.
    */
-  private highestPriorityLabel(issueLabels: Set<string>, pullLabels: Set<string>): string {
+  private highestPriorityLabel(issueLabels: Set<string>, pullLabels: Set<string>, hasValidIssues: boolean): string {
     return this.priorityLabels.find(l => issueLabels.has(l)) ??
-      this.priorityLabels.find(l => pullLabels.has(l)) ??
+      (hasValidIssues ? this.priorityLabels.find(l => pullLabels.has(l)) : undefined) ??
       this.priorityLabels[this.priorityLabels.length-1];
   }
 
