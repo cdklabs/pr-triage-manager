@@ -22,6 +22,11 @@ const project = new typescript.TypeScriptProject({
   },
 });
 
+// The eslint task lints .projenrc.js, but with @typescript-eslint v8's project
+// service enabled the JS file is not part of any tsconfig. Register it as an
+// allowed default-project file so the project service can parse it.
+project.eslint.allowDefaultProjectFiles('.projenrc.js');
+
 // package as a single runnable .js file in /dist
 project.packageTask.reset('ncc build --source-map --license licenses.txt');
 project.package.addField('main', 'lib/index.js');
