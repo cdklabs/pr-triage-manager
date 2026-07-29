@@ -16,7 +16,7 @@ dist
 /.github/
 /.vscode/
 /.idea/
-/.projenrc.js
 tsconfig.tsbuildinfo
 /.eslintrc.json
 /.gitattributes
+/.projenrc.js
