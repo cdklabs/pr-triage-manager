@@ -5002,7 +5002,7 @@ __metadata:
     eslint-plugin-import: "npm:^2.32.0"
     jest: "npm:^27.5.1"
     jest-junit: "npm:^17"
-    projen: "npm:^0.104.21"
+    projen: "npm:^0.104.23"
     ts-jest: "npm:^27.1.5"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^4.9.5"
@@ -5034,9 +5034,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"projen@npm:^0.104.21":
-  version: 0.104.21
-  resolution: "projen@npm:0.104.21"
+"projen@npm:^0.104.23":
+  version: 0.104.23
+  resolution: "projen@npm:0.104.23"
   dependencies:
     "@iarna/toml": "npm:^2.2.5"
     case: "npm:^1.6.3"
@@ -5058,7 +5058,7 @@ __metadata:
     constructs: ^10.5.0
   bin:
     projen: bin/projen
-  checksum: 10c0/8ec2b9b9dfc2eb594faf798bd1870a90306e4db2f019f2822efb17c41e3e9d5ec16faa2d8b68ad691c2af2e4e5d5309132f591a73f65256cf7ea2acbea7ff74e
+  checksum: 10c0/cc6c043e55b0f214d510c49c3bd2d6c802f2977012281a4a515162ab1091ebf215ddf660591ecd0cf5eaae5f84906a1d71ecebcae9e47c9fa1f0e715a6343ae0
   languageName: node
   linkType: hard
 
