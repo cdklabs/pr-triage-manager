@@ -1,4 +1,4 @@
-import { javascript, typescript } from 'projen';
+import { EndOfLine, javascript, typescript } from 'projen';
 
 const project = new typescript.TypeScriptProject({
   name: 'pr-triage-manager',
@@ -16,6 +16,10 @@ const project = new typescript.TypeScriptProject({
   githubOptions: {
     mergify: false,
     mergeQueue: true,
+  },
+
+  gitOptions: {
+    endOfLine: EndOfLine.NONE,
   },
 
   release: false,
